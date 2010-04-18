@@ -1,0 +1,10 @@
+This is the source of the friendexport facebook app.
+
+http://apps.facebook.com/friendexport
+
+--
+
+The src/include directory contains the official facebook PHP5 client library 
+which can be found at:
+
+http://svn.facebook.com/svnroot/platform/clients/packages/facebook-platform.tar.gz
