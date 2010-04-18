@@ -10,21 +10,8 @@
   <body>
 <?php
 
-error_reporting(E_NONE);
-ini_set('display_errors', 0);
-
-require_once('global.php');
+require_once('.'.DIRECTORY_SEPARATOR.'global.php');
 require_once(INCLUDE_DIR.'facebook.php');
-
-/*
-
-// No longer works for iframe apps.
-// Leaving here for posterity.
-
-$fb = new Facebook(FB_API_KEY, FB_API_SECRET);
-$fb_user = $fb->require_login();
-
-*/
 
 // Workarounds for new fb rules re. iframe apps
 
@@ -47,6 +34,8 @@ if(!$user) {
 }
 $key = $facebook->api_client->session_key;
 $token = md5($user.$secret);
+
+// This is used to append to internal links
 $params = "uid=$user&key=$key&token=$token";
 
 ?>

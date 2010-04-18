@@ -4,18 +4,7 @@ error_reporting(E_NONE);
 ini_set('display_errors', 0);
 
 require_once('.'.DIRECTORY_SEPARATOR.'global.php');
-_log('Entered export.php');
 require_once(INCLUDE_DIR.'facebook.php');
-
-/*
-
-// No longer works for iframe apps.
-// Leaving here for posterity.
-
-$fb = new Facebook(FB_API_KEY, FB_API_SECRET);
-$fb_user = $fb->require_login();
-
-*/
 
 // Workarounds for new fb rules re. iframe apps
 
@@ -28,32 +17,19 @@ $check = md5($fb_user.$secret);
 if($check != $token) {
   die("Invalid Signature");
 }
+
 $fb = new Facebook(FB_API_KEY, FB_API_SECRET);
 $fb->set_user($fb_user, $key);
 
 $valid_formats = array('CSV');
-if(!array_key_exists('format', $_REQUEST) || !in_array($_REQUEST['format'], $valid_formats))
-{
-  echo 'Invalid or no format specified<br><br>';
-  exit;
+if(!array_key_exists('format', $_REQUEST) || !in_array($_REQUEST['format'], $valid_formats)) {
+  die('Invalid format or no format specified');
 }
 
-if(is_numeric($fb_user))
-{
+if(is_numeric($fb_user)) {
   $info = $fb->api_client->users_getInfo($fb_user,'name');
-  if(is_array($info))
-  {
-    _log("Download by: ".$info[0]['name']);
-  }
-  else
-  {
-    _log("User info not an array");
-  }
-}
-else
-{
-  _log('Unable to get user info');
-  _log($fb_user);
+} else {
+  die('Unable to get user info');
 }
 
 $friends = $fb->api_client->friends_get();
@@ -70,8 +46,8 @@ $all_info = $fb->api_client->users_getInfo($friends, array(
   'profile_url',
   'sex',
 ));
-switch($_REQUEST['format'])
-{
+
+switch($_REQUEST['format']) {
   case 'CSV':
     header('Last-Modified: '.gmdate('D, d M Y H:i:s', time()) . ' GMT');
     header('Expires: '.gmdate("D, d M Y H:i:s", time()).' GMT');
@@ -82,38 +58,31 @@ switch($_REQUEST['format'])
     header('Content-Disposition: attachment; filename="FriendExport-'.date('Y-m-d').'.csv"');
     echo '"First Name","Last Name","Sex","Birthday","About",';
     echo '"Relationship Status","Looking For","With A","Interests","ID","Profile URL",'."\n";
-    foreach($all_info AS $id => $friend)
-    {
+    foreach($all_info AS $id => $friend) {
       echo csv_escape($friend['first_name']);
       echo csv_escape($friend['last_name']);
       echo csv_escape($friend['sex']);
       echo csv_escape($friend['birthday']);
       echo csv_escape($friend['about_me']);
       echo csv_escape($friend['relationship_status']);
-      if(is_array($friend['meeting_for']))
-      {
+      if(is_array($friend['meeting_for'])) {
         $for = implode(' ', $friend['meeting_for']);
       }
-      else
-      {
+      else {
         $for = '';
       }
       echo csv_escape($for);
-      if(is_array($friend['meeting_sex']))
-      {
+      if(is_array($friend['meeting_sex'])) {
         $sex = implode(' ', $friend['meeting_sex']);
       }
-      else
-      {
+      else {
         $sex = '';
       }
       echo csv_escape($sex);
-      if(is_array($friend['interests']))
-      {
+      if(is_array($friend['interests'])) {
         $interests = implode(' ', $friend['interests']);
       }
-      else
-      {
+      else {
         $interests = '';
       }
       echo csv_escape($interests);
@@ -128,8 +97,7 @@ switch($_REQUEST['format'])
     break;
 }
 
-function csv_escape($text)
-{
+function csv_escape($text) {
   $text = mb_convert_encoding($text, 'UTF-16LE', 'UTF-8');
   $text = str_replace("\r", ' ', $text);
   $text = str_replace("\n", ' ', $text);
@@ -137,5 +105,3 @@ function csv_escape($text)
   $text = '"' .$text . '",';
   return $text;
 }
-
-?>
