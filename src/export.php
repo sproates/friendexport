@@ -98,7 +98,6 @@ switch($_REQUEST['format']) {
 }
 
 function csv_escape($text) {
-  $text = mb_convert_encoding($text, 'UTF-16LE', 'UTF-8');
   $text = str_replace("\r", ' ', $text);
   $text = str_replace("\n", ' ', $text);
   $text = str_replace('"','""',$text);
